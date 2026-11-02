@@ -1,4 +1,4 @@
 - game lose/win
-- render tick
 - another refactoring
 - fix rendering
+- make bufferSubData only update active portion of snake body

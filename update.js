@@ -1,6 +1,7 @@
 import { seedRandom, getRandomInt } from "./random.js";
-import { Snake } from "./snake.js";
+import { RingBuffer } from "./ring-buffer.js";
 import { codes } from "./input.js";
+import { logOnce } from "./utils.js";
 
 const emptyBit = 0;
 const snakeBit = 1;
@@ -8,9 +9,10 @@ const snakeBit = 1;
 const gridSizeX = 16;
 const gridSizeY = 16;
 export const gridSize = gridSizeX * gridSizeY;
+
+export const snake = new RingBuffer(gridSize * 2);
 const grid = new Uint8Array(gridSize);
 
-export const snake = new Snake(gridSize * 2); // synced ring buffer for rendering
 export let headX = 0;
 export let headY = 0;
 export let foodX;
@@ -89,6 +91,7 @@ function lose() {
 }
 
 export function tick() {
+	logOnce("aaaa", snake.buffer)
 	console.log(snake.getSize());
 
 // 	const invalidMovement =
@@ -127,4 +130,6 @@ export function tick() {
 	if (snake.getSize() >= gridSize) {
 		win();
 	}
+
+	logOnce("aaa", snake.buffer)
 }

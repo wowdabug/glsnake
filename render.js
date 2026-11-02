@@ -1,20 +1,9 @@
-import { resizeCanvasToDisplaySize, createProgramFromPaths } from "./gl-utils.js";
-import { snake, headX, headY, foodX, foodY } from "./update.js";
+import { resizeCanvasToDisplaySize } from "./gl-utils.js";
+import { init as initFood, render as renderFood } from "./render-food.js";
+import { init as initSnake, render as renderSnake } from "./render-snake.js";
 
-let canvas;
-let gl;
-
-let snakeProgram;
-let foodProgram;
-let snakeResolutionUniformLocation;
-let foodResolutionUniformLocation;
-
-function resolutionUniform() {
-	gl.useProgram(snakeProgram);
-	gl.uniform2f(snakeResolutionUniformLocation, canvas.width, canvas.height);
-	gl.useProgram(foodProgram);
-	gl.uniform2f(foodResolutionUniformLocation, canvas.width, canvas.height);
-}
+export let canvas;
+export let gl;
 
 export async function init() {
 	canvas = document.getElementById("c");
@@ -27,56 +16,18 @@ export async function init() {
 		throw new Error("WebGL2 not supported");
 	}
 
-	snakeProgram = await createProgramFromPaths(gl, "snake.vert", "snake.frag");
-	foodProgram = await createProgramFromPaths(gl, "food.vert", "food.frag");
+	gl.clearColor(0.0, 0.0, 0.0, 1.0);
 
-	snakeResolutionUniformLocation = gl.getUniformLocation(snakeProgram, "u_resolution");
-	foodResolutionUniformLocation = gl.getUniformLocation(foodProgram, "u_resolution");
-
-	const positionAttribLocation = 0;
-	const colorAttribLocation = 1;
-
-	const positionBuffer = gl.createBuffer();
-	gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
-	const positions = [
-		100, 100,
-		100, 200,
-		300, 200
-	];
-	gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(positions), gl.STATIC_DRAW);
-
-	const vao = gl.createVertexArray();
-	gl.bindVertexArray(vao);
-	gl.enableVertexAttribArray(positionAttribLocation);
-	gl.vertexAttribPointer(
-		positionAttribLocation,
-		2,        // size
-		gl.FLOAT, // type
-		false,    // normalized
-		0,        // stride
-		0         // offset
-	);
-
-	resolutionUniform();
-	gl.clearColor(1, 1, 1, 1);
-}
-
-export function renderSnake() {
-	gl.useProgram(snakeProgram);
-}
-
-export function renderFood() {
-	gl.useProgram(foodProgram);
+	await initFood();
+	await initSnake();
 }
 
 export function render() {
-	if (resizeCanvasToDisplaySize(canvas)) {
-		resolutionUniform();
-	}
+	const needsResize = resizeCanvasToDisplaySize(canvas);
 
 	gl.viewport(0, 0, canvas.width, canvas.height);
 	gl.clear(gl.COLOR_BUFFER_BIT);
 
-	renderSnake();
-	renderFood();
+	renderFood(needsResize);
+	renderSnake(needsResize);
 }

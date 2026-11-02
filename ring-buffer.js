@@ -1,4 +1,4 @@
-export class Snake {
+export class RingBuffer {
 	#capacity;
 	#head;
 	#tail;
